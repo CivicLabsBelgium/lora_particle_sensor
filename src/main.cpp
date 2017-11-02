@@ -224,7 +224,7 @@ void setup() {
     // switch WiFi OFF
     //WiFi.disconnect();
     //WiFi.forceSleepBegin();
-    //delay(1);
+    delay(1);
 
     prev_message_time = millis();
 
