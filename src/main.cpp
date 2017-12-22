@@ -12,32 +12,9 @@
 
 #include <SoftwareSerial.h>
 
-#include <DHT.h>
+#include "DHT.h"
 
-// LoRaWAN Application identifier ^ ^(AppEUI)
-// Not used in this example
-static const u1_t APPEUI[8]  = { 0x70, 0xB3, 0xD5, 0x7E, 0xF0, 0x00, 0x3D, 0x39 };
-
-// LoRaWAN DevEUI, unique device ID (LSBF)
-// Not used in this example
-static const u1_t DEVEUI[8]  = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x90 };
-
-// LoRaWAN NwkSKey, network session key
-// Use this key for The Things Network
-static const u1_t DEVKEY[16] = { 0xF2, 0xD7, 0x51, 0x93, 0x37, 0xD7, 0x14, 0x30, 0xAD, 0xA0, 0xF5, 0xBC, 0x9A, 0x4C, 0x2F, 0xB4 };
-
-// LoRaWAN AppSKey, application session key
-// Use this key to get your data decrypted by The Things Network
-static const u1_t ARTKEY[16] = { 0xAB, 0xB2, 0xCF, 0x4C, 0x66, 0x55, 0x61, 0xA8, 0x3C, 0x66, 0x35, 0x17, 0x88, 0x9E, 0x74, 0xCB };
-
-
-// LoRaWAN end-device address (DevAddr)
-// See http://thethingsnetwork.org/wiki/AddressSpace
-static const u4_t DEVADDR = 0x26011143; // <-- Change this address for every node! ESP8266 node 0x01
-
-// **********************************************************
-// ******   Above settinge have to be adopted !!! ***********
-// **********************************************************
+#include "global.h"
 
 //---------------------------------------------------------
 // APPLICATION CALLBACKS
@@ -257,6 +234,7 @@ bool read_HPM_Sensor() {
         if (len == 32) {
             if (checksum_should == (checksum_is + 143)) {
                 checksum_ok = 1;
+                Serial.println("Checksum is OK");
             }
             else {
                 len = 0;
@@ -335,7 +313,7 @@ void sendData () {
       Serial.print("ok, ready to send: ");
       Serial.println();
 
-      byte bytsend[8];                   // !!!! MAx 10 Bytes to send !!!!
+      byte bytsend[10];                   // !!!! MAx 10 Bytes to send !!!!
       int idx = 0;
       int pm10 = (int)((hpm_pm10_sum/hpm_val_count)*100);
       int pm25 = (int)((hpm_pm25_sum/hpm_val_count)*100);
@@ -349,15 +327,13 @@ void sendData () {
       bytsend[5] = lowByte(hum);
       bytsend[6] = highByte(temp);
       bytsend[7] = lowByte(temp);
-
-  	  // prepare message
-      Serial.print("Long ByteArray:");
-      Serial.println(8);
+      bytsend[8] = byte(2); // 2 : HPM sensor
+      bytsend[9] = byte(1); // 1 : DHT sensor
 
       uint8_t mydata[64];
-      memcpy((char *)mydata, (char *)bytsend, 8);
+      memcpy((char *)mydata, (char *)bytsend, 10);
       int k;
-      for(k=0; k<8; k++) {
+      for(k = 0; k < 10; k++) {
         Serial.print(mydata[k],HEX);
         Serial.print(" ");
       }
@@ -366,7 +342,7 @@ void sendData () {
 
       // Prepare upstream data transmission at the next possible time.
       // LMIC_setTxData2(1, mydata, strlen((char *)mydata), 0);
-      LMIC_setTxData2(1, mydata, 8, 0);
+      LMIC_setTxData2(1, mydata, 10, 0);
     }
 }
 
@@ -467,6 +443,7 @@ void loop() {
                 Serial.println("Lets wait a bit");
             break;
         }
+
         os_runloop_once();
         delay(10);
     }
