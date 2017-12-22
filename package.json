@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "ttn": "^2.3.0-alpha.3"
+  }
+}

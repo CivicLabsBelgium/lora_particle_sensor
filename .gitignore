@@ -2,3 +2,8 @@
 .piolibdeps
 .clang_complete
 .gcc-flags.json
+.vscode/*
+node_modules
+
+src/global.h
+
