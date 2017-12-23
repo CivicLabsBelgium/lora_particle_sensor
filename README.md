@@ -6,10 +6,9 @@ This sensor measures the fine dust concentration in the air and sends data over 
 
 This is the firmware for a Influencair LoraWan sensor based on a Honeywell HPM series pm sensor, ESP8266 and RFM95W. For the LoraWan network we use The Things Network.
 
-This repository also provides the helper tools necessary for programming these sensors.
+This repo contains the firmware for a Influencair LoraWan sensor and the helper tools necessary for flashing these sensors.
 
 This sensor assembly is based on a [NodeMcu ESP8266-e12](https://github.com/nodemcu/nodemcu-devkit-v1.0), [RFM95W lora transeiver](http://www.hoperf.com/rf_transceiver/lora/RFM95W.html), [HPM pm sensor](https://sensing.honeywell.com/sensors/optical-sensors/particle-sensors/hpm-series), DHT22 humidity/temperature sensor.
-This repo contains the firmware for a Influencair LoraWan sensor and the helper tools necessary for flashing these sensors.
 
 ## Requirements
 - [Node.js](https://nodejs.org/en/)
