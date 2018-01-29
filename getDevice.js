@@ -2,6 +2,10 @@ const ttn = require('ttn')
 const fs = require('fs')
 const { exec } = require('child_process')
 
+const log = (logMessage) => {
+    process.stdout.write(logMessage + '\n')
+}
+
 if (process.env.appID === undefined || process.env.accessKey === undefined || process.env.deviceId === undefined) {
   log('Provide \'appID\' & \'accessKey\' with the environment')
   process.exit(1)

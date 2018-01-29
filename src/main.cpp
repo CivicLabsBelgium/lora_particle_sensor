@@ -66,9 +66,9 @@ void onEvent (ev_t ev) {
     }
 }
 
-#define SEND_MESSAGE 3*60*1000
-#define SENSOR_WARMUP 10000
-#define SENSOR_READ 70*1000
+#define SEND_MESSAGE 2.5*60*1000 // 3*60*1000
+#define SENSOR_WARMUP 10000 //10000
+#define SENSOR_READ 60*1000 // 70*1000
 
 
 #define DHT_PIN D1
@@ -106,7 +106,11 @@ static osjob_t sendjob;
 void read_DHT() {
     float h = dht.readHumidity(); //Read Humidity
 	float t = dht.readTemperature(); //Read Temperature
-
+    if (isnan(t) || isnan(h)) {
+        delay(100);
+        h = dht.readHumidity(true); //Read Humidity
+        t = dht.readTemperature(false,true); //Read Temperature
+    }
     if (isnan(t) || isnan(h)) {
 		Serial.println("DHT22 couldn't be read");
 	} else {
@@ -234,7 +238,6 @@ bool read_HPM_Sensor() {
         if (len == 32) {
             if (checksum_should == (checksum_is + 143)) {
                 checksum_ok = 1;
-                Serial.println("Checksum is OK");
             }
             else {
                 len = 0;
@@ -242,7 +245,6 @@ bool read_HPM_Sensor() {
                 pm25_serial = 0;
                 checksum_is;
                 checksum_should;
-                Serial.println("Checksum is bad");
             };
         }
         if (len == 32 && checksum_ok == 1) {
@@ -279,6 +281,7 @@ bool read_HPM_Sensor() {
 }
 
 void sendData () {
+    /*
     Serial.print("PM2.5 (mean.): ");
     Serial.println(float(hpm_pm25_sum/hpm_val_count));
     Serial.print("PM2.5 (min.): ");
@@ -307,6 +310,7 @@ void sendData () {
     Serial.print("Send, txCnhl: "); Serial.println(LMIC.txChnl);
     Serial.print("Opmode check: ");
     // Check if there is not a current TX/RX job running
+    */
     if (LMIC.opmode & (1 << 7)) {
       Serial.println("OP_TXRXPEND, not sending");
     } else {
@@ -315,10 +319,21 @@ void sendData () {
 
       byte bytsend[10];                   // !!!! MAx 10 Bytes to send !!!!
       int idx = 0;
-      int pm10 = (int)((hpm_pm10_sum/hpm_val_count)*100);
-      int pm25 = (int)((hpm_pm25_sum/hpm_val_count)*100);
-      int temp = (int)((dht_temp_sum/dht_val_count)*100);
-      int hum = (int)((dht_hum_sum/dht_val_count)*100);
+
+      int pm10 = 0;
+      int pm25 = 0;
+      if (hpm_val_count != 0) {
+        pm10 = (int)((hpm_pm10_sum/hpm_val_count)*100);
+        pm25 = (int)((hpm_pm25_sum/hpm_val_count)*100);
+      }
+      
+      int temp = 0;
+      int hum = 0;
+      if (dht_val_count != 0) {
+        temp = (int)((dht_temp_sum/dht_val_count)*100);
+        hum = (int)((dht_hum_sum/dht_val_count)*100);
+      }
+      
       bytsend[0] = highByte(pm10);
       bytsend[1] = lowByte(pm10);
       bytsend[2] = highByte(pm25);
@@ -348,7 +363,7 @@ void sendData () {
 
 void setup() {
     Serial.begin(115200);
-    Serial.println("start it all");
+    Serial.print("ok");
 
     // switch WiFi OFF
     WiFi.disconnect();
@@ -358,20 +373,16 @@ void setup() {
 
     // LMIC init
     os_init();
-    Serial.println("os_init() finished");
 
     // Reset the MAC state. Session and pending data transfers will be discarded.
     LMIC_reset();
-    Serial.println("LMIC_reet() finished");
 
     // Set static session parameters. Instead of dynamically establishing a session
     // by joining the network, precomputed session parameters are be provided.
     LMIC_setSession (0x1, DEVADDR, (uint8_t*)DEVKEY, (uint8_t*)ARTKEY);
-    Serial.println("LMIC_setSession() finished");
 
     // Disable data rate adaptation
     LMIC_setAdrMode(0);
-    Serial.println("LMICsetAddrMode() finished");
 
     // Disable link check validation
     LMIC_setLinkCheckMode(0);
@@ -381,8 +392,6 @@ void setup() {
     LMIC_stopPingable();
     // Set data rate and transmit power (note: txpow seems to be ignored by the library)
     LMIC_setDrTxpow(DR_SF7,14);
-    //
-    Serial.println("Init done");
 
     prev_message_time = millis();
 
@@ -436,8 +445,9 @@ void loop() {
                 }
             break;
             case (4):
-
-                sendData();
+                if (hpm_val_count > 0 && dht_val_count > 0) {
+                    sendData();
+                }
                 mode = 0;
                 prev_message_time = millis();
                 Serial.println("Lets wait a bit");

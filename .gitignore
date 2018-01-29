@@ -7,3 +7,4 @@ node_modules
 
 src/global.h
 
+.vscode/c_cpp_properties.json
