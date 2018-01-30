@@ -363,7 +363,10 @@ void sendData () {
 
 void setup() {
     Serial.begin(115200);
-    Serial.print("ok");
+    Serial.print("ChipID: ");
+    Serial.println(ESP.getChipId());
+    Serial.print("DeviceID: ");
+    Serial.print(DEVICEID);
 
     // switch WiFi OFF
     WiFi.disconnect();
@@ -445,7 +448,7 @@ void loop() {
                 }
             break;
             case (4):
-                if (hpm_val_count > 0 && dht_val_count > 0) {
+                if (hpm_val_count != 0 || dht_val_count != 0) {
                     sendData();
                 }
                 mode = 0;

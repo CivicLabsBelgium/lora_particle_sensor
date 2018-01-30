@@ -42,8 +42,9 @@ async function main() {
     const nwkSKey = `static const u1_t DEVKEY[16] = { ${string2ByteArray(device.nwkSKey)} };\n`
     const devEUI = `static const u1_t DEVEUI[8]  = { ${string2ByteArray(device.devEui)} };\n`
     const appvEUI = `static const u1_t APPEUI[8]  = { ${string2ByteArray(device.appEui)} };\n`
+    const deviceIdString = `static const char DEVICEID[ ] = "${deviceId}";\n`
 
-    fs.writeFile(globalPath, `${devEUI}\n${appvEUI}\n${appSKey}\n${nwkSKey}\n${devAddr}`, { flag: 'w' }, function (err) {
+    fs.writeFile(globalPath, `${devEUI}\n${appvEUI}\n${appSKey}\n${nwkSKey}\n${devAddr}\n${deviceIdString}`, { flag: 'w' }, function (err) {
       if (err) throw err
       console.log("It's saved!")
 
