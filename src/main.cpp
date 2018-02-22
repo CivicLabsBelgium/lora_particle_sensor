@@ -363,10 +363,11 @@ void sendData () {
 
 void setup() {
     Serial.begin(115200);
+    Serial.println("");
     Serial.print("ChipID: ");
     Serial.println(ESP.getChipId());
     Serial.print("DeviceID: ");
-    Serial.print(DEVICEID);
+    Serial.println(DEVICEID);
 
     // switch WiFi OFF
     WiFi.disconnect();
