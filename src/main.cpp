@@ -330,8 +330,8 @@ void sendData () {
       int temp = 0;
       int hum = 0;
       if (dht_val_count != 0) {
-        temp = (int)((dht_temp_sum/dht_val_count)*100);
-        hum = (int)((dht_hum_sum/dht_val_count)*100);
+        temp = (int)(((dht_temp_sum/dht_val_count)*100)+50);
+        hum = (int)(((dht_hum_sum/dht_val_count)*100)+50);
       }
       
       bytsend[0] = highByte(pm10);
@@ -343,7 +343,7 @@ void sendData () {
       bytsend[6] = highByte(temp);
       bytsend[7] = lowByte(temp);
       bytsend[8] = byte(2); // 2 : HPM sensor
-      bytsend[9] = byte(1); // 1 : DHT sensor
+      bytsend[9] = byte(2); // 1 : DHT sensor, 2 : DHT senosr (negative compensation)
 
       uint8_t mydata[64];
       memcpy((char *)mydata, (char *)bytsend, 10);
