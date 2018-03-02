@@ -330,8 +330,8 @@ void sendData () {
       int temp = 0;
       int hum = 0;
       if (dht_val_count != 0) {
-        temp = (int)(((dht_temp_sum/dht_val_count)*100)+50);
-        hum = (int)(((dht_hum_sum/dht_val_count)*100)+50);
+        temp = (int)(((dht_temp_sum/dht_val_count)+50)*100);
+        hum = (int)(((dht_hum_sum/dht_val_count)+50)*100);
       }
       
       bytsend[0] = highByte(pm10);
